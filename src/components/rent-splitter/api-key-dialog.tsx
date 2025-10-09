@@ -19,10 +19,9 @@ import { useToast } from '@/hooks/use-toast';
 interface ApiKeyDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onKeySubmit: () => void;
 }
 
-export function ApiKeyDialog({ isOpen, onOpenChange, onKeySubmit }: ApiKeyDialogProps) {
+export function ApiKeyDialog({ isOpen, onOpenChange }: ApiKeyDialogProps) {
   const [apiKey, setApiKey] = useState('');
   const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
@@ -56,7 +55,6 @@ export function ApiKeyDialog({ isOpen, onOpenChange, onKeySubmit }: ApiKeyDialog
         title: "API Key Saved",
         description: "Your Gemini API key has been securely saved.",
     });
-    onKeySubmit();
     onOpenChange(false);
   };
   

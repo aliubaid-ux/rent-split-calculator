@@ -109,7 +109,7 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
           const decodedData = JSON.parse(atob(data));
           if(decodedData.totalRent && decodedData.rooms && decodedData.weights) {
             methods.reset(decodedData);
-            toast({ title: "Welcome back!", description: "We've loaded your shared rent data." });
+            toast({ title: "Welcome back!", description: "We've loaded your shared rent data. This link does not save data on our servers." });
           }
         } catch (error) {
           console.error("Failed to parse data from URL", error);
@@ -216,15 +216,11 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
   };
   
   const onDialogClose = (isOpen: boolean) => {
-    if (!isOpen && !getCookie('gemini_api_key')) {
-      // User closed without saving
-      setIsApiDialogOpen(false);
-    } else if (!isOpen) {
-      // Dialog closed, and we should have a key
-      setIsApiDialogOpen(false);
+    setIsApiDialogOpen(isOpen);
+    // If the dialog is closing and a key has been successfully set,
+    // proceed with the AI optimization.
+    if (!isOpen && getCookie('gemini_api_key')) {
       handleAiOptimize();
-    } else {
-      setIsApiDialogOpen(isOpen);
     }
   };
 
@@ -233,8 +229,7 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
       <form onSubmit={handleSubmit(handleCalculate)} className="space-y-8">
         <ApiKeyDialog 
           isOpen={isApiDialogOpen}
-          onOpenChange={setIsApiDialogOpen}
-          onKeySubmit={handleAiOptimize}
+          onOpenChange={onDialogClose}
         />
 
         <RoomForm />
