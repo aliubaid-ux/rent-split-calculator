@@ -9,8 +9,8 @@
  * - `SuggestFairWeightsOutput`: The output type for the `suggestFairWeights` function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { genkit } from 'genkit';
+import { z } from 'genkit';
 import { cookies } from 'next/headers';
 import { googleAI } from '@genkit-ai/google-genai';
 
