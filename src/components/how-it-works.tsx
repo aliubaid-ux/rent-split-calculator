@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle, CardDescription } from "./ui/card";
-import { ListChecks, SlidersHorizontal, BarChart, Bot } from 'lucide-react';
+import { ListChecks, SlidersHorizontal, BarChart } from 'lucide-react';
 
 const steps = [
     {
@@ -11,11 +11,6 @@ const steps = [
         icon: SlidersHorizontal,
         title: "2. Adjust Weights",
         description: "Decide what's most important to your group. Is it the room's size, the amenities, or the comfort? Adjust the weights to reflect your priorities."
-    },
-    {
-        icon: Bot,
-        title: "Optional: AI Optimization",
-        description: "Not sure what's fair? Click 'Auto Optimize with AI' and let our smart algorithm suggest the most equitable weight distribution for your specific rooms."
     },
     {
         icon: BarChart,
@@ -34,7 +29,7 @@ export function HowItWorks() {
                         Achieve rent harmony in just a few simple steps. Our calculator makes a complex process easy and transparent.
                     </p>
                 </div>
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-6">
                     {steps.map((step, index) => (
                         <Card key={index} className="flex flex-col text-center items-center p-6 border-2 border-transparent hover:border-primary hover:shadow-lg transition-all">
                             <CardHeader className="p-0">

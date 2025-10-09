@@ -8,16 +8,12 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import type { CalculationResult, FormData } from '@/lib/types';
 import { calculateRent } from '@/lib/calculator';
-import { suggestFairWeights, type SuggestFairWeightsInput } from '@/ai/flows/suggest-fair-weights';
-import { explainAISuggestion, type ExplainAISuggestionInput } from '@/ai/flows/explain-ai-suggestion';
 import { useToast } from "@/hooks/use-toast";
 import { RoomForm } from './room-form';
 import { WeightPanel } from './weight-panel';
 import { ResultsDashboard } from './results-dashboard';
 import { Button } from '@/components/ui/button';
-import { ApiKeyDialog } from './api-key-dialog';
-import { ArrowDown, Bot } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowDown } from 'lucide-react';
 
 const formSchema = z.object({
   totalRent: z.number().min(1, "Total rent is required"),
@@ -49,20 +45,9 @@ interface RentSplitterProps {
   initialCounters: { helped: number; likes: number; dislikes: number; pdfs: number; links: number; };
 }
 
-const getCookie = (name: string): string | undefined => {
-  if (typeof document === 'undefined') return undefined;
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(';').shift();
-};
-
-
 export function RentSplitter({ initialCounters }: RentSplitterProps) {
   const [results, setResults] = useState<CalculationResult[]>([]);
-  const [aiExplanation, setAiExplanation] = useState<string>('');
   const [isCalculating, setIsCalculating] = useState(false);
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [isApiDialogOpen, setIsApiDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const methods = useForm<FormData>({
@@ -97,7 +82,7 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
     },
   });
 
-  const { handleSubmit, watch, setValue } = methods;
+  const { handleSubmit, watch } = methods;
 
   const formValues = watch();
 
@@ -142,123 +127,22 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
     }
   };
 
-  const handleAiOptimize = async () => {
-    const apiKey = getCookie('gemini_api_key');
-    if (!apiKey) {
-      setIsApiDialogOpen(true);
-      return;
-    }
-
-    setIsAiLoading(true);
-    setAiExplanation('');
-    try {
-      const aiInput: SuggestFairWeightsInput = {
-        apiKey,
-        rooms: formValues.rooms.map(r => ({
-          name: r.name,
-          size: r.size,
-          hasPrivateBathroom: r.hasPrivateBathroom,
-          hasCloset: r.hasCloset,
-          hasBalcony: r.hasBalcony,
-          airConditioning: r.hasAirConditioning,
-          noiseLevel: r.noiseLevel,
-          naturalLight: r.naturalLight,
-          customFeatures: r.customFeatures.map(cf => ({ name: cf.name, importance: cf.importance })),
-        }))
-      };
-
-      const aiResult = await suggestFairWeights(aiInput);
-      
-      setValue('weights.size', aiResult.sizeWeight, { shouldValidate: true, shouldDirty: true });
-      setValue('weights.features', aiResult.featureWeight, { shouldValidate: true, shouldDirty: true });
-      setValue('weights.comfort', aiResult.comfortWeight, { shouldValidate: true, shouldDirty: true });
-
-      toast({
-        title: "AI Weights Applied!",
-        description: "The weights have been updated based on AI suggestions.",
-      });
-
-      const explanationInput: ExplainAISuggestionInput = {
-        apiKey,
-        rooms: formValues.rooms.map(r => ({
-          name: r.name,
-          size: r.size,
-          hasPrivateBathroom: r.hasPrivateBathroom,
-          hasCloset: r.hasCloset,
-          hasBalcony: r.hasBalcony,
-          airConditioning: r.hasAirConditioning,
-          noiseLevel: r.noiseLevel,
-          naturalLight: r.naturalLight,
-          customFeatures: r.customFeatures.map(cf => ({ name: cf.name, importance: cf.importance })),
-        })),
-        sizeWeight: aiResult.sizeWeight,
-        featureWeight: aiResult.featureWeight,
-        comfortWeight: aiResult.comfortWeight,
-      };
-
-      const explanationResult = await explainAISuggestion(explanationInput);
-      setAiExplanation(explanationResult.explanation);
-
-
-    } catch (error) {
-      console.error("AI optimization failed:", error);
-      let description = "Could not get suggestions from AI. Please try again later.";
-      if (error instanceof Error && error.message.includes('API key')) {
-        description = "Your Gemini API key is missing or invalid. Please check your key and try again.";
-      }
-      toast({
-        variant: "destructive",
-        title: "AI Error",
-        description,
-      });
-    } finally {
-      setIsAiLoading(false);
-    }
-  };
-  
-  const onDialogClose = (isOpen: boolean) => {
-    setIsApiDialogOpen(isOpen);
-    // If the dialog is closing and a key has been successfully set,
-    // proceed with the AI optimization.
-    if (!isOpen && getCookie('gemini_api_key')) {
-      handleAiOptimize();
-    }
-  };
-
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(handleCalculate)} className="space-y-8">
-        <ApiKeyDialog 
-          isOpen={isApiDialogOpen}
-          onOpenChange={onDialogClose}
-        />
-
         <RoomForm />
 
         <div className="flex justify-center">
             <ArrowDown className="h-8 w-8 text-muted-foreground animate-bounce" />
         </div>
 
-        <WeightPanel onAiOptimize={handleAiOptimize} isAiLoading={isAiLoading} />
-
-        {aiExplanation && (
-          <Card className="bg-primary/5 border-primary/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-primary">
-                <Bot /> AI Suggestion Breakdown
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-foreground/90">{aiExplanation}</p>
-            </CardContent>
-          </Card>
-        )}
+        <WeightPanel />
         
         <div className="text-center sticky bottom-4 z-10">
           <Button 
             type="submit" 
             size="lg" 
-            disabled={isCalculating || isAiLoading} 
+            disabled={isCalculating} 
             className="text-lg px-10 py-7 shadow-2xl rounded-full"
           >
             {isCalculating ? 'Calculating...' : 'Calculate Fair Split'}

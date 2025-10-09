@@ -8,15 +8,11 @@ import {
   const faqs = [
     {
       question: "Is this service really free?",
-      answer: "Yes, Rent Fairness is completely free to use. Our goal is to help roommates everywhere find a fair way to split their rent. If you want to use the AI optimization feature, you'll need your own Gemini API key, which has a generous free tier."
-    },
-    {
-      question: "How does the AI optimization work?",
-      answer: "Our AI model analyzes all the room details you provide—size, features, comfort levels, and any custom attributes. It then suggests a weight distribution for these categories that it determines to be the most equitable, based on patterns from thousands of fair rent scenarios."
+      answer: "Yes, Rent Fairness is completely free to use. Our goal is to help roommates everywhere find a fair way to split their rent."
     },
     {
       question: "Is my data safe?",
-      answer: "Absolutely. All calculations happen directly in your browser. We don't store your rent details. If you use the sharing feature, your data is encoded in the URL, but it's not stored on our servers. The AI feature sends anonymized room data to the Gemini API, but never your total rent."
+      answer: "Absolutely. All calculations happen directly in your browser. We don't store any of your rent or room details on our servers. If you use the sharing feature, your data is encoded in the URL itself for privacy."
     },
     {
       question: "What if we disagree with the results?",

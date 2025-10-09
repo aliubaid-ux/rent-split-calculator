@@ -5,16 +5,9 @@ import { useFormContext, Controller } from 'react-hook-form';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { Button } from '@/components/ui/button';
-import { Sparkles } from 'lucide-react';
 import { FormItem } from '@/components/ui/form';
 
-interface WeightPanelProps {
-  onAiOptimize: () => void;
-  isAiLoading: boolean;
-}
-
-export function WeightPanel({ onAiOptimize, isAiLoading }: WeightPanelProps) {
+export function WeightPanel() {
   const { control, watch, setValue } = useFormContext();
   const weights = watch('weights');
 
@@ -86,9 +79,6 @@ export function WeightPanel({ onAiOptimize, isAiLoading }: WeightPanelProps) {
               Tell us what matters most to your group. The weights must add up to 100%.
             </CardDescription>
           </div>
-          <Button variant="outline" onClick={onAiOptimize} disabled={isAiLoading} className="shrink-0 bg-background">
-              {isAiLoading ? 'Optimizing...' : <><Sparkles className="mr-2 h-4 w-4 text-amber-500" /> Auto-Suggest with AI</>}
-          </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-6 pt-2">
