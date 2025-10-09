@@ -16,7 +16,8 @@ import { WeightPanel } from './weight-panel';
 import { ResultsDashboard } from './results-dashboard';
 import { Button } from '@/components/ui/button';
 import { ApiKeyDialog } from './api-key-dialog';
-import { ArrowDown } from 'lucide-react';
+import { ArrowDown, Bot } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const formSchema = z.object({
   totalRent: z.number().min(1, "Total rent is required"),
@@ -238,7 +239,20 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
             <ArrowDown className="h-8 w-8 text-muted-foreground animate-bounce" />
         </div>
 
-        <WeightPanel onAiOptimize={handleAiOptimize} isAiLoading={isAiLoading} aiExplanation={aiExplanation} />
+        <WeightPanel onAiOptimize={handleAiOptimize} isAiLoading={isAiLoading} />
+
+        {aiExplanation && (
+          <Card className="bg-primary/5 border-primary/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-primary">
+                <Bot /> AI Suggestion Breakdown
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-foreground/90">{aiExplanation}</p>
+            </CardContent>
+          </Card>
+        )}
         
         <div className="text-center sticky bottom-4 z-10">
           <Button 

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useFormContext, Controller } from 'react-hook-form';
@@ -5,17 +6,15 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/com
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Bot } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Sparkles } from 'lucide-react';
 import { FormItem } from '@/components/ui/form';
 
 interface WeightPanelProps {
   onAiOptimize: () => void;
   isAiLoading: boolean;
-  aiExplanation: string;
 }
 
-export function WeightPanel({ onAiOptimize, isAiLoading, aiExplanation }: WeightPanelProps) {
+export function WeightPanel({ onAiOptimize, isAiLoading }: WeightPanelProps) {
   const { control, watch, setValue } = useFormContext();
   const weights = watch('weights');
 
@@ -40,7 +39,7 @@ export function WeightPanel({ onAiOptimize, isAiLoading, aiExplanation }: Weight
       if (val1 === 0 && val2 === 0) {
         updatedWeights[field1] = Math.max(0, val1 - Math.ceil(diff / 2));
         updatedWeights[field2] = Math.max(0, val2 - Math.floor(diff / 2));
-      } else {
+      } else if (val1 + val2 > 0) {
         const ratio1 = val1 / (val1 + val2);
         const ratio2 = val2 / (val1 + val2);
         updatedWeights[field1] = Math.max(0, val1 - diff * ratio1);
@@ -93,15 +92,6 @@ export function WeightPanel({ onAiOptimize, isAiLoading, aiExplanation }: Weight
         </div>
       </CardHeader>
       <CardContent className="space-y-6 pt-2">
-        {aiExplanation && (
-          <Alert className="bg-primary/5 border-primary/20">
-            <Bot className="h-4 w-4 text-primary" />
-            <AlertTitle className="text-primary font-bold">AI Suggestion Breakdown</AlertTitle>
-            <AlertDescription>
-              {aiExplanation}
-            </AlertDescription>
-          </Alert>
-        )}
         <div className="grid md:grid-cols-3 gap-8 pt-4">
             <Controller
                 name="weights.size"
@@ -138,5 +128,3 @@ export function WeightPanel({ onAiOptimize, isAiLoading, aiExplanation }: Weight
     </Card>
   );
 }
-
-    
