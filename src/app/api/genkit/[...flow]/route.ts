@@ -1,4 +1,4 @@
-import { configureGecko } from '@genkit-ai/next';
+import { createApiHandler } from '@genkit-ai/next/server';
 import '@/ai/genkit';
 
-export const { GET, POST } = configureGecko();
+export const { GET, POST } = createApiHandler();
