@@ -163,18 +163,16 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
       });
 
       const explanationInput: ExplainAISuggestionInput = {
-        roomDetails: formValues.rooms.map(r => ({
-          roomName: r.name,
+        rooms: formValues.rooms.map(r => ({
+          name: r.name,
           size: r.size,
-          features: [
-            ...(r.hasPrivateBathroom ? ['Private Bathroom'] : []),
-            ...(r.hasCloset ? ['Closet'] : []),
-            ...(r.hasBalcony ? ['Balcony'] : []),
-            ...(r.hasAirConditioning ? ['Air Conditioning'] : []),
-          ],
+          hasPrivateBathroom: r.hasPrivateBathroom,
+          hasCloset: r.hasCloset,
+          hasBalcony: r.hasBalcony,
+          airConditioning: r.hasAirConditioning,
           noiseLevel: r.noiseLevel,
           naturalLight: r.naturalLight,
-          customFeatures: r.customFeatures,
+          customFeatures: r.customFeatures.map(cf => ({ name: cf.name, importance: cf.importance })),
         })),
         sizeWeight: aiResult.sizeWeight,
         featureWeight: aiResult.featureWeight,
@@ -238,5 +236,3 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
     </FormProvider>
   );
 }
-
-    

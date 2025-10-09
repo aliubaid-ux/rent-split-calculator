@@ -47,7 +47,7 @@ const SuggestFairWeightsOutputSchema = z.object({
 
 export type SuggestFairWeightsOutput = z.infer<typeof SuggestFairWeightsOutputSchema>;
 
-export async function suggestFairWeights(input: SuggestFairWeightsInput): Promise<SuggestFairWeightsOutput> {
+function getCustomAi() {
   const cookieStore = cookies();
   const apiKey = cookieStore.get('gemini_api_key')?.value;
 
@@ -55,9 +55,13 @@ export async function suggestFairWeights(input: SuggestFairWeightsInput): Promis
     throw new Error('Gemini API key not found.');
   }
 
-  const customAi = genkit({
+  return genkit({
     plugins: [googleAI({ apiKey })],
   });
+}
+
+export async function suggestFairWeights(input: SuggestFairWeightsInput): Promise<SuggestFairWeightsOutput> {
+  const customAi = getCustomAi();
 
   const suggestFairWeightsPrompt = customAi.definePrompt({
     name: 'suggestFairWeightsPrompt',
@@ -79,5 +83,3 @@ Output only the weights.
   const {output} = await suggestFairWeightsPrompt(input);
   return output!;
 }
-
-    
