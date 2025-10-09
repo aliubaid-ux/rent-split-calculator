@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormContext, Controller } from 'react-hook-form';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
@@ -53,7 +53,7 @@ export function WeightPanel({ onAiOptimize, isAiLoading, aiExplanation }: Weight
             }
 
             updatedWeights[field1] = Math.round(new_val1);
-            updatedWeights[field2] = 100 - updatedWeights[changedField] - updatedWeights[field1];
+            updatedWeights[field2] = 100 - updatedWeights[changedField] - updatedweights[field1];
         } else {
             // Both are 0, distribute equally
             updatedWeights[field1] = Math.round(-diff / 2);
@@ -77,13 +77,18 @@ export function WeightPanel({ onAiOptimize, isAiLoading, aiExplanation }: Weight
     <Card>
       <CardHeader>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
             <CardTitle className="font-headline text-2xl">Step 2: Adjust Weights</CardTitle>
-            <Button variant="outline" onClick={onAiOptimize} disabled={isAiLoading}>
-                {isAiLoading ? 'Optimizing...' : <><Sparkles className="mr-2 h-4 w-4" /> Auto Optimize with AI</>}
-            </Button>
+            <CardDescription className="mt-1">
+              Tell us what matters most to you when splitting the rent.
+            </CardDescription>
+          </div>
+          <Button variant="outline" onClick={onAiOptimize} disabled={isAiLoading} className="shrink-0">
+              {isAiLoading ? 'Optimizing...' : <><Sparkles className="mr-2 h-4 w-4" /> Auto Optimize with AI</>}
+          </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 pt-2">
         {aiExplanation && (
           <Alert>
             <Bot className="h-4 w-4" />
