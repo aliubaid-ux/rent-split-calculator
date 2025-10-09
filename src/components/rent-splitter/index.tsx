@@ -214,6 +214,19 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
       setIsAiLoading(false);
     }
   };
+  
+  const onDialogClose = (isOpen: boolean) => {
+    if (!isOpen && !getCookie('gemini_api_key')) {
+      // User closed without saving
+      setIsApiDialogOpen(false);
+    } else if (!isOpen) {
+      // Dialog closed, and we should have a key
+      setIsApiDialogOpen(false);
+      handleAiOptimize();
+    } else {
+      setIsApiDialogOpen(isOpen);
+    }
+  };
 
   return (
     <FormProvider {...methods}>

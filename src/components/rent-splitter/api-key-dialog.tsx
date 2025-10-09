@@ -27,13 +27,6 @@ export function ApiKeyDialog({ isOpen, onOpenChange, onKeySubmit }: ApiKeyDialog
   const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
   
-  const getCookie = (name: string): string | undefined => {
-    if (typeof document === 'undefined') return;
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop()?.split(';').shift();
-  };
-
   const setCookie = (name: string, value: string, days: number) => {
     if (typeof document === 'undefined') return;
     let expires = "";
@@ -63,8 +56,8 @@ export function ApiKeyDialog({ isOpen, onOpenChange, onKeySubmit }: ApiKeyDialog
         title: "API Key Saved",
         description: "Your Gemini API key has been securely saved.",
     });
-    onOpenChange(false);
     onKeySubmit();
+    onOpenChange(false);
   };
   
   if (!isMounted) {
