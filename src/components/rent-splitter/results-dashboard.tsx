@@ -5,7 +5,7 @@ import { useState, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { PieChart, Pie, Cell, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Download, Share2, ThumbsUp, ThumbsDown, Gauge } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -55,7 +55,7 @@ export function ResultsDashboard({ results, totalRent, formData, initialCounters
     incrementStat('links');
     incrementStat('helped');
     setCounters(prev => ({...prev, links: prev.links + 1}));
-    toast({ title: "Link Copied!", description: "A shareable link has been copied to your clipboard. The data is stored in the link and not on our servers." });
+    toast({ title: "Link Copied!", description: "A shareable link has been copied. The data is encoded in the URL itself." });
   };
 
   const handleFeedback = (type: 'like' | 'dislike') => {
@@ -71,10 +71,12 @@ export function ResultsDashboard({ results, totalRent, formData, initialCounters
   const chartData = useMemo(() => results.map(r => ({ name: r.roomName, value: r.rent })), [results]);
 
   const fairnessScore = useMemo(() => {
+    if (results.length <= 1) return 100;
     const rents = results.map(r => r.rent);
     const mean = totalRent / results.length;
     const stdDev = Math.sqrt(rents.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / rents.length);
-    const score = Math.max(0, 100 - (stdDev / mean) * 100);
+    // Inverse relationship: higher std dev means lower fairness score from an equal split perspective
+    const score = Math.max(0, 100 - (stdDev / mean) * 150);
     return Math.round(score);
   }, [results, totalRent]);
 
@@ -87,7 +89,7 @@ export function ResultsDashboard({ results, totalRent, formData, initialCounters
         <div className="w-full h-80">
           <ChartContainer config={{}} className="mx-auto aspect-square h-full">
             <PieChart>
-              <Tooltip
+              <ChartTooltip
                 cursor={false}
                 content={<ChartTooltipContent hideLabel indicator="dot" formatter={(value, name) => (
                     <div className="flex flex-col">
@@ -136,7 +138,7 @@ export function ResultsDashboard({ results, totalRent, formData, initialCounters
                         <TableCell className="text-right font-bold">{currencySymbol}{result.rent.toFixed(2)}</TableCell>
                     </TableRow>
                     ))}
-                    <TableRow className="bg-secondary/50 font-bold">
+                    <TableRow className="bg-secondary font-bold">
                         <TableCell>Total</TableCell>
                         <TableCell className="text-right">100.00%</TableCell>
                         <TableCell className="text-right">{currencySymbol}{totalRent.toFixed(2)}</TableCell>
@@ -147,7 +149,7 @@ export function ResultsDashboard({ results, totalRent, formData, initialCounters
               <CardTitle className="text-lg mb-2 flex items-center gap-2"><Gauge size={20} /> Fairness Meter</CardTitle>
               <Progress value={fairnessScore} className="w-full h-4" />
               <p className="text-sm text-muted-foreground mt-1">
-                A score of 100 means an equal split. Lower scores indicate greater difference based on room attributes.
+                A score of 100 implies an equal split. Lower scores mean a greater difference based on attributes.
               </p>
             </div>
         </div>
@@ -164,10 +166,12 @@ export function ResultsDashboard({ results, totalRent, formData, initialCounters
             </Button>
         </div>
       </CardFooter>
-      <CardFooter className="flex-col gap-2 pt-4 no-print">
+      <CardFooter className="flex-col gap-2 pt-4 no-print border-t mt-6">
         <p className="text-sm text-muted-foreground">PDFs Generated: {counters.pdfs.toLocaleString()}</p>
         <p className="text-sm text-muted-foreground">Links Shared: {counters.links.toLocaleString()}</p>
       </CardFooter>
     </Card>
   );
 }
+
+    

@@ -4,6 +4,5 @@ import { suggestFairWeights } from '@/ai/flows/suggest-fair-weights';
 import { explainAISuggestion } from '@/ai/flows/explain-ai-suggestion';
 
 
-export const POST = nextJSHandler({
-  flows: [suggestFairWeights, explainAISuggestion],
-});
+export const POST = nextJSHandler();
+    

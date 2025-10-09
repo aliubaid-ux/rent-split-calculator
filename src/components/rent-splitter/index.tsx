@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { CalculationResult, FormData } from '@/lib/types';
 import { calculateRent } from '@/lib/calculator';
 import { suggestFairWeights, type SuggestFairWeightsInput } from '@/ai/flows/suggest-fair-weights';
+import { explainAISuggestion, type ExplainAISuggestionInput } from '@/ai/flows/explain-ai-suggestion';
 import { useToast } from "@/hooks/use-toast";
 import { RoomForm } from './room-form';
 import { WeightPanel } from './weight-panel';
@@ -116,7 +117,6 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
     try {
       const rentResults = calculateRent(data.totalRent, data.rooms, data.weights);
       setResults(rentResults);
-      setAiExplanation(''); // Clear previous AI explanation on new calculation
       
       setTimeout(() => {
         const resultsEl = document.getElementById('results-dashboard');
@@ -156,12 +156,34 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
       setValue('weights.size', aiResult.sizeWeight, { shouldValidate: true, shouldDirty: true });
       setValue('weights.features', aiResult.featureWeight, { shouldValidate: true, shouldDirty: true });
       setValue('weights.comfort', aiResult.comfortWeight, { shouldValidate: true, shouldDirty: true });
-      setAiExplanation(aiResult.explanation);
 
       toast({
         title: "AI Weights Applied!",
-        description: "The weights have been updated. Now, calculate your new split!",
+        description: "The weights have been updated based on AI suggestions.",
       });
+
+      const explanationInput: ExplainAISuggestionInput = {
+        roomDetails: formValues.rooms.map(r => ({
+          roomName: r.name,
+          size: r.size,
+          features: [
+            ...(r.hasPrivateBathroom ? ['Private Bathroom'] : []),
+            ...(r.hasCloset ? ['Closet'] : []),
+            ...(r.hasBalcony ? ['Balcony'] : []),
+            ...(r.hasAirConditioning ? ['Air Conditioning'] : []),
+          ],
+          noiseLevel: r.noiseLevel,
+          naturalLight: r.naturalLight,
+          customFeatures: r.customFeatures,
+        })),
+        sizeWeight: aiResult.sizeWeight,
+        featureWeight: aiResult.featureWeight,
+        comfortWeight: aiResult.comfortWeight,
+      };
+
+      const explanationResult = await explainAISuggestion(explanationInput);
+      setAiExplanation(explanationResult.explanation);
+
 
     } catch (error) {
       console.error("AI optimization failed:", error);
@@ -216,3 +238,5 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
     </FormProvider>
   );
 }
+
+    

@@ -34,7 +34,7 @@ const ExplainAISuggestionInputSchema = z.object({
 export type ExplainAISuggestionInput = z.infer<typeof ExplainAISuggestionInputSchema>;
 
 const ExplainAISuggestionOutputSchema = z.object({
-  explanations: z.array(z.string()),
+  explanation: z.string(),
 });
 export type ExplainAISuggestionOutput = z.infer<typeof ExplainAISuggestionOutputSchema>;
 
@@ -50,27 +50,14 @@ const prompt = ai.definePrompt({
 
 You are given the following room details:
 
-{% each roomDetails %}
-Room Name: {{this.roomName}}
-Size: {{this.size}}
-Features: {{this.features}}
-Noise Level: {{this.noiseLevel}}
-Natural Light: {{this.naturalLight}}
-Custom Features: {% each this.customFeatures %}{{this.name}} (Importance: {{this.importance}})
-{% endeach %}
-{% endeach %}
+{{{JSON.stringify roomDetails}}}
 
 The AI suggested the following weights:
 Size Weight: {{sizeWeight}}
 Feature Weight: {{featureWeight}}
 Comfort Weight: {{comfortWeight}}
 
-Explain why these weights were suggested, providing specific reasons for each weight based on the room details. Provide justification for the suggested weights, with details. Focus on which rooms influenced the weight the most, and what were the important features. The explanation should be short and to the point.
-
-Output format:
-{
-  "explanations": ["Explanation 1", "Explanation 2", ...]
-}
+Explain in a short, friendly, and to-the-point paragraph why these weights were suggested. Provide specific reasons for each weight based on the room details. For example, if one room is much larger or has a unique feature like a private bathroom, mention it.
 `,
 });
 
@@ -85,3 +72,5 @@ const explainAISuggestionFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    

@@ -22,50 +22,54 @@ export function WeightPanel({ onAiOptimize, isAiLoading, aiExplanation }: Weight
   const handleSliderChange = (changedField: 'size' | 'features' | 'comfort', value: number) => {
     const currentTotal = weights.size + weights.features + weights.comfort;
     const othersTotal = currentTotal - weights[changedField];
-    const newTotal = value + othersTotal;
+    let newTotal = value + othersTotal;
 
-    let { size, features, comfort } = weights;
-    const updatedWeights = { size, features, comfort };
+    const updatedWeights = { ...weights };
     updatedWeights[changedField] = value;
 
-    const otherFields = (['size', 'features', 'comfort'] as const).filter(f => f !== changedField);
-
     if (newTotal !== 100) {
-        const diff = newTotal - 100;
+      const diff = newTotal - 100;
+      const otherFields = (['size', 'features', 'comfort'] as const).filter(f => f !== changedField);
 
-        let field1 = otherFields[0];
-        let field2 = otherFields[1];
-        
-        let val1 = updatedWeights[field1];
-        let val2 = updatedWeights[field2];
+      let field1 = otherFields[0];
+      let field2 = otherFields[1];
+      
+      let val1 = updatedWeights[field1];
+      let val2 = updatedWeights[field2];
 
-        if (val1 + val2 > 0) {
-            let new_val1 = val1 - (val1 / (val1 + val2)) * diff;
-            let new_val2 = val2 - (val2 / (val1 + val2)) * diff;
-            
-            if(new_val1 < 0) {
-                new_val2 += new_val1;
-                new_val1 = 0;
-            }
-            if(new_val2 < 0) {
-                new_val1 += new_val2;
-                new_val2 = 0;
-            }
+      if (val1 === 0 && val2 === 0) {
+        updatedWeights[field1] = Math.max(0, val1 - Math.ceil(diff / 2));
+        updatedWeights[field2] = Math.max(0, val2 - Math.floor(diff / 2));
+      } else {
+        const ratio1 = val1 / (val1 + val2);
+        const ratio2 = val2 / (val1 + val2);
+        updatedWeights[field1] = Math.max(0, val1 - diff * ratio1);
+        updatedWeights[field2] = Math.max(0, val2 - diff * ratio2);
+      }
+    }
 
-            updatedWeights[field1] = Math.round(new_val1);
-            updatedWeights[field2] = 100 - updatedWeights[changedField] - updatedWeights[field1];
-        } else {
-            // Both are 0, distribute equally
-            updatedWeights[field1] = Math.round(-diff / 2);
-            updatedWeights[field2] = -diff - Math.round(-diff / 2);
+    let finalSum = Math.round(updatedWeights.size) + Math.round(updatedWeights.features) + Math.round(updatedWeights.comfort);
+    let roundingError = 100 - finalSum;
+    
+    // Distribute rounding error
+    if (roundingError !== 0) {
+        const fields = ['size', 'features', 'comfort'];
+        for(let i = 0; i < Math.abs(roundingError); i++) {
+            // Add or subtract from the largest weight that is not the one being changed
+            const fieldToAdjust = fields.filter(f => f !== changedField).sort((a,b) => updatedWeights[b] - updatedWeights[a])[i % 2];
+            updatedWeights[fieldToAdjust] += Math.sign(roundingError);
         }
     }
     
-    // Final check to ensure sum is 100
-    const sum = Math.round(updatedWeights.size) + Math.round(updatedWeights.features) + Math.round(updatedWeights.comfort);
-    if (sum !== 100) {
-        const lastField = otherFields[1];
-        updatedWeights[lastField] += (100 - sum);
+    // Ensure no value is negative and the total is 100
+    updatedWeights.size = Math.max(0, Math.round(updatedWeights.size));
+    updatedWeights.features = Math.max(0, Math.round(updatedWeights.features));
+    updatedWeights.comfort = Math.max(0, Math.round(updatedWeights.comfort));
+
+    finalSum = updatedWeights.size + updatedWeights.features + updatedWeights.comfort;
+    if (finalSum !== 100) {
+        const fieldToAdjust = (['size', 'features', 'comfort'] as const).filter(f => f !== changedField)[0];
+        updatedWeights[fieldToAdjust] += (100 - finalSum);
     }
     
     setValue('weights.size', updatedWeights.size);
@@ -80,7 +84,7 @@ export function WeightPanel({ onAiOptimize, isAiLoading, aiExplanation }: Weight
           <div>
             <CardTitle className="font-headline text-2xl">Step 2: Adjust Weights</CardTitle>
             <CardDescription className="mt-1">
-              Tell us what matters most. The weights must add up to 100%.
+              Tell us what matters most to your group. The weights must add up to 100%.
             </CardDescription>
           </div>
           <Button variant="outline" onClick={onAiOptimize} disabled={isAiLoading} className="shrink-0 bg-background">
@@ -92,7 +96,7 @@ export function WeightPanel({ onAiOptimize, isAiLoading, aiExplanation }: Weight
         {aiExplanation && (
           <Alert className="bg-primary/5 border-primary/20">
             <Bot className="h-4 w-4 text-primary" />
-            <AlertTitle className="text-primary">AI Suggestion</AlertTitle>
+            <AlertTitle className="text-primary font-bold">AI Suggestion Breakdown</AlertTitle>
             <AlertDescription>
               {aiExplanation}
             </AlertDescription>
@@ -134,3 +138,5 @@ export function WeightPanel({ onAiOptimize, isAiLoading, aiExplanation }: Weight
     </Card>
   );
 }
+
+    

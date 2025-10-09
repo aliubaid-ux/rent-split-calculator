@@ -43,7 +43,6 @@ const SuggestFairWeightsOutputSchema = z.object({
   sizeWeight: z.number().describe('Suggested weight for room size (0-100)'),
   featureWeight: z.number().describe('Suggested weight for room features (0-100)'),
   comfortWeight: z.number().describe('Suggested weight for room comfort (0-100)'),
-  explanation: z.string().describe('Explanation of why these weights are suggested'),
 });
 
 export type SuggestFairWeightsOutput = z.infer<typeof SuggestFairWeightsOutputSchema>;
@@ -58,48 +57,27 @@ export async function suggestFairWeights(input: SuggestFairWeightsInput): Promis
 
   const customAi = genkit({
     plugins: [googleAI({ apiKey })],
-    model: 'googleai/gemini-2.5-flash',
   });
 
   const suggestFairWeightsPrompt = customAi.definePrompt({
     name: 'suggestFairWeightsPrompt',
     input: {schema: SuggestFairWeightsInputSchema},
     output: {schema: SuggestFairWeightsOutputSchema},
-    prompt: `You are an expert in fair rent distribution among roommates. Analyze the following room details and suggest fair weights (0-100) for size, features, and comfort, explaining your reasoning. The weights should sum to 100.
+    prompt: `You are an expert in fair rent distribution. Analyze the room details and suggest fair weights (0-100) for size, features, and comfort. The weights must sum to 100.
 
 Rooms: {{{JSON.stringify rooms}}}
 
-Consider these factors when assigning weights:
+Consider these factors:
+*   **Size:** Larger rooms get higher rent.
+*   **Features:** Private bathrooms, balconies, etc., add value.
+*   **Comfort:** Lower noise and more light are better.
 
-*   **Size:** Larger rooms generally warrant a higher rent.
-*   **Features:** Private bathrooms, closets, balconies, and air conditioning add value.
-*   **Comfort:** Lower noise levels and more natural light improve comfort.
-
-Output the weights and explain the logic of how you assigned the weights. Give a thorough explanation that a user can understand.
-
-Ensure that sizeWeight + featureWeight + comfortWeight add up to 100.
-
-Example Output:
-{
-  "sizeWeight": 50,
-  "featureWeight": 30,
-  "comfortWeight": 20,
-  "explanation": "Size is the most significant factor, so it receives the highest weight. Features contribute moderately, and comfort factors are less important in this scenario."
-}
+Output only the weights.
 `,
   });
 
-  const suggestFairWeightsFlow = customAi.defineFlow(
-    {
-      name: 'suggestFairWeightsFlow',
-      inputSchema: SuggestFairWeightsInputSchema,
-      outputSchema: SuggestFairWeightsOutputSchema,
-    },
-    async input => {
-      const {output} = await suggestFairWeightsPrompt(input);
-      return output!;
-    }
-  );
-
-  return suggestFairWeightsFlow(input);
+  const {output} = await suggestFairWeightsPrompt(input);
+  return output!;
 }
+
+    
