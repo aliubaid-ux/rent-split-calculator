@@ -59,7 +59,7 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
   const methods = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      totalRent: undefined,
+      totalRent: 0,
       currency: 'USD',
       rooms: [{ 
         id: uuidv4(), 

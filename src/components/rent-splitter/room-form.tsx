@@ -65,7 +65,10 @@ export function RoomForm() {
                       id="totalRent"
                       type="number"
                       {...field}
-                      onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                      onChange={e => {
+                        const value = e.target.value;
+                        field.onChange(value === '' ? 0 : parseFloat(value));
+                      }}
                       className="text-lg h-12"
                       placeholder="e.g., 3000"
                     />
