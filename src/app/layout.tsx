@@ -1,19 +1,18 @@
 import type { Metadata } from 'next';
-import { Inter, Lobster_Two } from 'next/font/google';
+import { Poppins, PT_Sans } from 'next/font/google';
 import { Toaster } from "@/components/ui/toaster"
 import './globals.css';
 
-const inter = Inter({
+const fontPoppins = Poppins({
   subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
+  weight: ['400', '600', '700'],
+  variable: '--font-headline',
 });
 
-const lobsterTwo = Lobster_Two({
+const fontPtSans = PT_Sans({
   subsets: ['latin'],
   weight: ['400', '700'],
-  variable: '--font-lobster-two',
-  display: 'swap',
+  variable: '--font-body',
 });
 
 const siteConfig = {
@@ -85,7 +84,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${lobsterTwo.variable} dark`} suppressHydrationWarning>
+    <html lang="en" className={`${fontPoppins.variable} ${fontPtSans.variable} dark`} suppressHydrationWarning>
       <body className="font-body antialiased">
         {children}
         <Toaster />
