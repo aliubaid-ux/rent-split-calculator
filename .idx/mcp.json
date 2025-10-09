@@ -1,3 +1,10 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "web": {
+      "port": 9002,
+      "run": "npm run dev",
+      "autostart": true,
+      "web": true
+    }
+  }
 }

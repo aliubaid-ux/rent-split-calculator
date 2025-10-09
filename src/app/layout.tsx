@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Poppins, PT_Sans } from 'next/font/google';
 import { Toaster } from "@/components/ui/toaster"
+import { Analytics } from '@vercel/analytics/react';
 import './globals.css';
 
 const fontPoppins = Poppins({
@@ -87,6 +88,7 @@ export default function RootLayout({
     <html lang="en" className={`${fontPoppins.variable} ${fontPtSans.variable} dark`} suppressHydrationWarning>
       <body className="font-body antialiased">
         {children}
+        <Analytics />
       </body>
     </html>
   );
