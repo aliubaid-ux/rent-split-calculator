@@ -5,12 +5,14 @@ import { getCounters } from '@/lib/actions';
 import { HeroSection } from '@/components/hero-section';
 import { HowItWorks } from '@/components/how-it-works';
 import { Faq } from '@/components/faq';
+import { Toaster } from '@/components/ui/toaster';
 
 export default async function Home() {
   const initialCounters = await getCounters();
   
   return (
     <div className="flex flex-col min-h-dvh bg-background">
+      <Toaster />
       <div className="no-print">
         <AppHeader />
       </div>
