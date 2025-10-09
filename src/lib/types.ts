@@ -1,3 +1,4 @@
+
 export interface CustomFeature {
   id: string;
   name: string;
@@ -25,6 +26,7 @@ export interface Weights {
 
 export interface FormData {
   totalRent: number;
+  currency: string;
   rooms: Room[];
   weights: Weights;
 }

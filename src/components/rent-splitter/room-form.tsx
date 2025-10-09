@@ -1,15 +1,28 @@
+
 "use client";
 
 import { useFormContext, useFieldArray, Controller } from 'react-hook-form';
 import { v4 as uuidv4 } from 'uuid';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Trash2, PlusCircle } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
-import { FormField, FormItem, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
+import { FormField, FormItem, FormControl, FormMessage, FormLabel, FormDescription } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const currencies = [
+    { value: 'USD', label: '$ USD' },
+    { value: 'EUR', label: '€ EUR' },
+    { value: 'GBP', label: '£ GBP' },
+    { value: 'JPY', label: '¥ JPY' },
+    { value: 'CAD', label: '$ CAD' },
+    { value: 'AUD', label: '$ AUD' },
+    { value: 'CHF', label: 'Fr CHF' },
+    { value: 'INR', label: '₹ INR' },
+];
 
 export function RoomForm() {
   const { control } = useFormContext();
@@ -37,29 +50,55 @@ export function RoomForm() {
     <Card className="shadow-lg">
       <CardHeader>
         <CardTitle className="font-headline text-2xl">Step 1: Enter Room & Rent Details</CardTitle>
-        <FormDescription>Start by telling us the total rent and the details for each room.</FormDescription>
+        <CardDescription>Start by telling us the total rent and the details for each room.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <FormField
-          control={control}
-          name="totalRent"
-          render={({ field }) => (
-            <FormItem className="max-w-xs">
-              <Label htmlFor="totalRent" className="text-lg">Total Monthly Rent ($)</Label>
-              <FormControl>
-                <Input
-                  id="totalRent"
-                  type="number"
-                  {...field}
-                  onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
-                  className="text-lg h-12"
-                  placeholder="e.g., 3000"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField
+              control={control}
+              name="totalRent"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="totalRent" className="text-lg">Total Monthly Rent</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="totalRent"
+                      type="number"
+                      {...field}
+                      onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                      className="text-lg h-12"
+                      placeholder="e.g., 3000"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="currency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-lg">Currency</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="text-lg h-12">
+                        <SelectValue placeholder="Select a currency" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {currencies.map(currency => (
+                        <SelectItem key={currency.value} value={currency.value}>
+                          {currency.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+        </div>
         
         <div className="space-y-4">
           <Label className="text-lg font-medium">Rooms</Label>

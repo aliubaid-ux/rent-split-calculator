@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -18,6 +19,7 @@ import { ArrowDown } from 'lucide-react';
 
 const formSchema = z.object({
   totalRent: z.number().min(1, "Total rent is required"),
+  currency: z.string(),
   rooms: z.array(z.object({
     id: z.string(),
     name: z.string().min(1, "Room name is required"),
@@ -57,6 +59,7 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       totalRent: undefined,
+      currency: 'USD',
       rooms: [{ 
         id: uuidv4(), 
         name: 'Master Bedroom', 

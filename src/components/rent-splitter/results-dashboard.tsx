@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo } from 'react';
@@ -12,6 +13,16 @@ import { incrementStat } from '@/lib/actions';
 import type { CalculationResult, FormData } from '@/lib/types';
 import { Progress } from '@/components/ui/progress';
 
+const currencySymbols: { [key: string]: string } = {
+    USD: '$',
+    EUR: '€',
+    GBP: '£',
+    JPY: '¥',
+    CAD: '$',
+    AUD: '$',
+    CHF: 'Fr',
+    INR: '₹',
+};
 
 interface ResultsDashboardProps {
   results: CalculationResult[];
@@ -26,6 +37,8 @@ export function ResultsDashboard({ results, totalRent, formData, initialCounters
   const { toast } = useToast();
   const [counters, setCounters] = useState(initialCounters);
   const [feedbackGiven, setFeedbackGiven] = useState<'like' | 'dislike' | null>(null);
+
+  const currencySymbol = currencySymbols[formData.currency] || '$';
 
   const handleDownloadPdf = () => {
     window.print();
@@ -61,9 +74,6 @@ export function ResultsDashboard({ results, totalRent, formData, initialCounters
     const rents = results.map(r => r.rent);
     const mean = totalRent / results.length;
     const stdDev = Math.sqrt(rents.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / rents.length);
-    // Normalize standard deviation. A lower std dev means a more "equal" (not necessarily fair) split.
-    // We want to reward splits that deviate based on features, so this is a rough metric.
-    // This simple metric shows how "unequal" the split is. 100 = perfectly equal.
     const score = Math.max(0, 100 - (stdDev / mean) * 100);
     return Math.round(score);
   }, [results, totalRent]);
@@ -82,7 +92,7 @@ export function ResultsDashboard({ results, totalRent, formData, initialCounters
                 content={<ChartTooltipContent hideLabel indicator="dot" formatter={(value, name) => (
                     <div className="flex flex-col">
                         <span className="font-bold">{name}</span>
-                        <span>{`$${Number(value).toFixed(2)} / month`}</span>
+                        <span>{`${currencySymbol}${Number(value).toFixed(2)} / month`}</span>
                     </div>
                 )} />}
               />
@@ -123,13 +133,13 @@ export function ResultsDashboard({ results, totalRent, formData, initialCounters
                           {result.roomName}
                         </TableCell>
                         <TableCell className="text-right">{result.percentage.toFixed(2)}%</TableCell>
-                        <TableCell className="text-right font-bold">${result.rent.toFixed(2)}</TableCell>
+                        <TableCell className="text-right font-bold">{currencySymbol}{result.rent.toFixed(2)}</TableCell>
                     </TableRow>
                     ))}
                     <TableRow className="bg-secondary/50 font-bold">
                         <TableCell>Total</TableCell>
                         <TableCell className="text-right">100.00%</TableCell>
-                        <TableCell className="text-right">${totalRent.toFixed(2)}</TableCell>
+                        <TableCell className="text-right">{currencySymbol}{totalRent.toFixed(2)}</TableCell>
                     </TableRow>
                 </TableBody>
             </Table>
