@@ -5,23 +5,30 @@ import { getCounters } from '@/lib/actions';
 import { HeroSection } from '@/components/hero-section';
 import { HowItWorks } from '@/components/how-it-works';
 import { Faq } from '@/components/faq';
-import { Separator } from '@/components/ui/separator';
 
 export default async function Home() {
   const initialCounters = await getCounters();
   
   return (
     <div className="flex flex-col min-h-dvh bg-background">
-      <AppHeader />
+      <div className="no-print">
+        <AppHeader />
+      </div>
       <main className="flex-grow">
-        <HeroSection />
+        <div className="no-print">
+          <HeroSection />
+        </div>
         <div id="calculator" className="container mx-auto px-4 py-12 md:py-20 scroll-mt-20">
           <RentSplitter initialCounters={initialCounters} />
         </div>
-        <HowItWorks />
-        <Faq />
+        <div className="no-print">
+          <HowItWorks />
+          <Faq />
+        </div>
       </main>
-      <AppFooter stats={initialCounters} />
+      <div className="no-print">
+        <AppFooter stats={initialCounters} />
+      </div>
     </div>
   );
 }

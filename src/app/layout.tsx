@@ -86,8 +86,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${fontPoppins.variable} ${fontPtSans.variable} dark`} suppressHydrationWarning>
       <body className="font-body antialiased">
+        <div className="no-print">
+          <Toaster />
+        </div>
         {children}
-        <Toaster />
       </body>
     </html>
   );
