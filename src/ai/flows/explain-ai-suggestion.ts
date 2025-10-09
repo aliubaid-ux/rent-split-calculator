@@ -11,7 +11,6 @@
 import { genkit } from 'genkit';
 import { z } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
-import { cookies } from 'next/headers';
 
 // Consistent Room schema, matching suggest-fair-weights.ts
 const RoomSchema = z.object({
@@ -32,6 +31,7 @@ const RoomSchema = z.object({
 });
 
 const ExplainAISuggestionInputSchema = z.object({
+  apiKey: z.string().optional(),
   rooms: z.array(RoomSchema).describe('Array of room objects with their details'),
   sizeWeight: z.number(),
   featureWeight: z.number(),
@@ -44,11 +44,7 @@ const ExplainAISuggestionOutputSchema = z.object({
 });
 export type ExplainAISuggestionOutput = z.infer<typeof ExplainAISuggestionOutputSchema>;
 
-// Consistent API key handling
-function getCustomAi() {
-  const cookieStore = cookies();
-  const apiKey = cookieStore.get('gemini_api_key')?.value;
-
+function getCustomAi(apiKey?: string) {
   if (!apiKey) {
     throw new Error('Gemini API key not found.');
   }
@@ -59,7 +55,7 @@ function getCustomAi() {
 }
 
 export async function explainAISuggestion(input: ExplainAISuggestionInput): Promise<ExplainAISuggestionOutput> {
-  const customAi = getCustomAi();
+  const customAi = getCustomAi(input.apiKey);
 
   const prompt = customAi.definePrompt({
     name: 'explainAISuggestionPrompt',

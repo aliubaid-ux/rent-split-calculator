@@ -48,6 +48,14 @@ interface RentSplitterProps {
   initialCounters: { helped: number; likes: number; dislikes: number; pdfs: number; links: number; };
 }
 
+const getCookie = (name: string): string | undefined => {
+  if (typeof document === 'undefined') return undefined;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift();
+};
+
+
 export function RentSplitter({ initialCounters }: RentSplitterProps) {
   const [results, setResults] = useState<CalculationResult[]>([]);
   const [aiExplanation, setAiExplanation] = useState<string>('');
@@ -134,10 +142,17 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
   };
 
   const handleAiOptimize = async () => {
+    const apiKey = getCookie('gemini_api_key');
+    if (!apiKey) {
+      setIsApiDialogOpen(true);
+      return;
+    }
+
     setIsAiLoading(true);
     setAiExplanation('');
     try {
       const aiInput: SuggestFairWeightsInput = {
+        apiKey,
         rooms: formValues.rooms.map(r => ({
           name: r.name,
           size: r.size,
@@ -163,6 +178,7 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
       });
 
       const explanationInput: ExplainAISuggestionInput = {
+        apiKey,
         rooms: formValues.rooms.map(r => ({
           name: r.name,
           size: r.size,
@@ -186,7 +202,7 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
     } catch (error) {
       console.error("AI optimization failed:", error);
       let description = "Could not get suggestions from AI. Please try again later.";
-      if (error instanceof Error && error.message.includes('API key not found')) {
+      if (error instanceof Error && error.message.includes('API key')) {
         description = "Your Gemini API key is missing or invalid. Please check your key and try again.";
       }
       toast({
@@ -214,7 +230,7 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
             <ArrowDown className="h-8 w-8 text-muted-foreground animate-bounce" />
         </div>
 
-        <WeightPanel onAiOptimize={() => setIsApiDialogOpen(true)} isAiLoading={isAiLoading} aiExplanation={aiExplanation} />
+        <WeightPanel onAiOptimize={handleAiOptimize} isAiLoading={isAiLoading} aiExplanation={aiExplanation} />
         
         <div className="text-center sticky bottom-4 z-10">
           <Button 

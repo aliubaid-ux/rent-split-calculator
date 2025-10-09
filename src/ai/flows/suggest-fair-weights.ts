@@ -11,10 +11,10 @@
 
 import { genkit } from 'genkit';
 import { z } from 'genkit';
-import { cookies } from 'next/headers';
 import { googleAI } from '@genkit-ai/google-genai';
 
 const SuggestFairWeightsInputSchema = z.object({
+  apiKey: z.string().optional(),
   rooms: z.array(
     z.object({
       name: z.string().describe('Name of the room'),
@@ -47,10 +47,7 @@ const SuggestFairWeightsOutputSchema = z.object({
 
 export type SuggestFairWeightsOutput = z.infer<typeof SuggestFairWeightsOutputSchema>;
 
-function getCustomAi() {
-  const cookieStore = cookies();
-  const apiKey = cookieStore.get('gemini_api_key')?.value;
-
+function getCustomAi(apiKey?: string) {
   if (!apiKey) {
     throw new Error('Gemini API key not found.');
   }
@@ -61,7 +58,7 @@ function getCustomAi() {
 }
 
 export async function suggestFairWeights(input: SuggestFairWeightsInput): Promise<SuggestFairWeightsOutput> {
-  const customAi = getCustomAi();
+  const customAi = getCustomAi(input.apiKey);
 
   const suggestFairWeightsPrompt = customAi.definePrompt({
     name: 'suggestFairWeightsPrompt',
