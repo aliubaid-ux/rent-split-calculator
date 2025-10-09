@@ -11,6 +11,8 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { cookies } from 'next/headers';
+import { googleAI } from '@genkit-ai/google-genai';
 
 const SuggestFairWeightsInputSchema = z.object({
   rooms: z.array(
@@ -47,14 +49,23 @@ const SuggestFairWeightsOutputSchema = z.object({
 export type SuggestFairWeightsOutput = z.infer<typeof SuggestFairWeightsOutputSchema>;
 
 export async function suggestFairWeights(input: SuggestFairWeightsInput): Promise<SuggestFairWeightsOutput> {
-  return suggestFairWeightsFlow(input);
-}
+  const cookieStore = cookies();
+  const apiKey = cookieStore.get('gemini_api_key')?.value;
 
-const suggestFairWeightsPrompt = ai.definePrompt({
-  name: 'suggestFairWeightsPrompt',
-  input: {schema: SuggestFairWeightsInputSchema},
-  output: {schema: SuggestFairWeightsOutputSchema},
-  prompt: `You are an expert in fair rent distribution among roommates. Analyze the following room details and suggest fair weights (0-100) for size, features, and comfort, explaining your reasoning. The weights should sum to 100.
+  if (!apiKey) {
+    throw new Error('Gemini API key not found.');
+  }
+
+  const customAi = genkit({
+    plugins: [googleAI({ apiKey })],
+    model: 'googleai/gemini-2.5-flash',
+  });
+
+  const suggestFairWeightsPrompt = customAi.definePrompt({
+    name: 'suggestFairWeightsPrompt',
+    input: {schema: SuggestFairWeightsInputSchema},
+    output: {schema: SuggestFairWeightsOutputSchema},
+    prompt: `You are an expert in fair rent distribution among roommates. Analyze the following room details and suggest fair weights (0-100) for size, features, and comfort, explaining your reasoning. The weights should sum to 100.
 
 Rooms: {{{JSON.stringify rooms}}}
 
@@ -76,16 +87,19 @@ Example Output:
   "explanation": "Size is the most significant factor, so it receives the highest weight. Features contribute moderately, and comfort factors are less important in this scenario."
 }
 `,
-});
+  });
 
-const suggestFairWeightsFlow = ai.defineFlow(
-  {
-    name: 'suggestFairWeightsFlow',
-    inputSchema: SuggestFairWeightsInputSchema,
-    outputSchema: SuggestFairWeightsOutputSchema,
-  },
-  async input => {
-    const {output} = await suggestFairWeightsPrompt(input);
-    return output!;
-  }
-);
+  const suggestFairWeightsFlow = customAi.defineFlow(
+    {
+      name: 'suggestFairWeightsFlow',
+      inputSchema: SuggestFairWeightsInputSchema,
+      outputSchema: SuggestFairWeightsOutputSchema,
+    },
+    async input => {
+      const {output} = await suggestFairWeightsPrompt(input);
+      return output!;
+    }
+  );
+
+  return suggestFairWeightsFlow(input);
+}

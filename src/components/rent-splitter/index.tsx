@@ -13,6 +13,7 @@ import { RoomForm } from './room-form';
 import { WeightPanel } from './weight-panel';
 import { ResultsDashboard } from './results-dashboard';
 import { Button } from '@/components/ui/button';
+import { ApiKeyDialog } from './api-key-dialog';
 
 const formSchema = z.object({
   totalRent: z.number().min(1, "Total rent is required"),
@@ -48,6 +49,7 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
   const [aiExplanation, setAiExplanation] = useState<string>('');
   const [isCalculating, setIsCalculating] = useState(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isApiDialogOpen, setIsApiDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const methods = useForm<FormData>({
@@ -154,9 +156,15 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(handleCalculate)} className="space-y-8">
+        <ApiKeyDialog 
+          isOpen={isApiDialogOpen}
+          onOpenChange={setIsApiDialogOpen}
+          onKeySubmit={handleAiOptimize}
+        />
+
         <RoomForm />
 
-        <WeightPanel onAiOptimize={handleAiOptimize} isAiLoading={isAiLoading} aiExplanation={aiExplanation} />
+        <WeightPanel onAiOptimize={() => setIsApiDialogOpen(true)} isAiLoading={isAiLoading} aiExplanation={aiExplanation} />
         
         <div className="text-center">
           <Button type="submit" size="lg" disabled={isCalculating || isAiLoading}>

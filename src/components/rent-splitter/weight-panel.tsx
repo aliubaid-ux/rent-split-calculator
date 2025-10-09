@@ -53,7 +53,7 @@ export function WeightPanel({ onAiOptimize, isAiLoading, aiExplanation }: Weight
             }
 
             updatedWeights[field1] = Math.round(new_val1);
-            updatedWeights[field2] = 100 - updatedWeights[changedField] - updatedweights[field1];
+            updatedWeights[field2] = 100 - updatedWeights[changedField] - updatedWeights[field1];
         } else {
             // Both are 0, distribute equally
             updatedWeights[field1] = Math.round(-diff / 2);
