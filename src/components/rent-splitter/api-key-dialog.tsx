@@ -24,18 +24,16 @@ interface ApiKeyDialogProps {
 
 export function ApiKeyDialog({ isOpen, onOpenChange, onKeySubmit }: ApiKeyDialogProps) {
   const [apiKey, setApiKey] = useState('');
-  const [hasCheckedCookie, setHasCheckedCookie] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
-
+  
   const getCookie = (name: string): string | undefined => {
-    if (typeof document === 'undefined') return undefined;
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop()?.split(';').shift();
   };
 
   const setCookie = (name: string, value: string, days: number) => {
-    if (typeof document === 'undefined') return;
     let expires = "";
     if (days) {
         const date = new Date();
@@ -44,18 +42,21 @@ export function ApiKeyDialog({ isOpen, onOpenChange, onKeySubmit }: ApiKeyDialog
     }
     document.cookie = name + "=" + (value || "")  + expires + "; path=/; SameSite=Lax; Secure";
   };
+  
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
 
   useEffect(() => {
-    if (isOpen) {
+    if (isMounted && isOpen) {
       const existingKey = getCookie('gemini_api_key');
       if (existingKey) {
           onOpenChange(false);
           onKeySubmit();
-      } else {
-        setHasCheckedCookie(true);
       }
     }
-  }, [isOpen, onOpenChange, onKeySubmit]);
+  }, [isOpen, onOpenChange, onKeySubmit, isMounted]);
 
   const handleSubmit = () => {
     if (!apiKey.trim()) {
@@ -69,23 +70,23 @@ export function ApiKeyDialog({ isOpen, onOpenChange, onKeySubmit }: ApiKeyDialog
     setCookie('gemini_api_key', apiKey, 365);
     toast({
         title: "API Key Saved",
-        description: "Your Gemini API key has been securely saved in your browser's cookies.",
+        description: "Your Gemini API key has been securely saved.",
     });
     onOpenChange(false);
     onKeySubmit();
   };
   
-  if (!hasCheckedCookie && isOpen) {
+  if (!isMounted) {
       return null;
   }
 
   return (
-    <Dialog open={isOpen && hasCheckedCookie} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Enter Gemini API Key</DialogTitle>
           <DialogDescription>
-            To use the AI optimization feature, you need to provide your own Gemini API key. Your key will be stored securely in your browser's cookies.
+            To use the AI optimization feature, please provide your Google AI Studio API key. Your key is stored in your browser's cookies and never sent to our servers.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">

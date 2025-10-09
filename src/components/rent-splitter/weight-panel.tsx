@@ -74,31 +74,31 @@ export function WeightPanel({ onAiOptimize, isAiLoading, aiExplanation }: Weight
   };
   
   return (
-    <Card>
+    <Card className="shadow-lg border-2 border-primary/20">
       <CardHeader>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <CardTitle className="font-headline text-2xl">Step 2: Adjust Weights</CardTitle>
             <CardDescription className="mt-1">
-              Tell us what matters most to you when splitting the rent.
+              Tell us what matters most. The weights must add up to 100%.
             </CardDescription>
           </div>
-          <Button variant="outline" onClick={onAiOptimize} disabled={isAiLoading} className="shrink-0">
-              {isAiLoading ? 'Optimizing...' : <><Sparkles className="mr-2 h-4 w-4" /> Auto Optimize with AI</>}
+          <Button variant="outline" onClick={onAiOptimize} disabled={isAiLoading} className="shrink-0 bg-background">
+              {isAiLoading ? 'Optimizing...' : <><Sparkles className="mr-2 h-4 w-4 text-amber-500" /> Auto-Suggest with AI</>}
           </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-6 pt-2">
         {aiExplanation && (
-          <Alert>
-            <Bot className="h-4 w-4" />
-            <AlertTitle>AI Suggestion</AlertTitle>
+          <Alert className="bg-primary/5 border-primary/20">
+            <Bot className="h-4 w-4 text-primary" />
+            <AlertTitle className="text-primary">AI Suggestion</AlertTitle>
             <AlertDescription>
               {aiExplanation}
             </AlertDescription>
           </Alert>
         )}
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-8 pt-4">
             <Controller
                 name="weights.size"
                 control={control}

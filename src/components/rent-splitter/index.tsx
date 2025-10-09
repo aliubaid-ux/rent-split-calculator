@@ -14,6 +14,7 @@ import { WeightPanel } from './weight-panel';
 import { ResultsDashboard } from './results-dashboard';
 import { Button } from '@/components/ui/button';
 import { ApiKeyDialog } from './api-key-dialog';
+import { ArrowDown } from 'lucide-react';
 
 const formSchema = z.object({
   totalRent: z.number().min(1, "Total rent is required"),
@@ -55,17 +56,28 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
   const methods = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      totalRent: 1000,
+      totalRent: undefined,
       rooms: [{ 
         id: uuidv4(), 
-        name: 'Room 1', 
-        size: 120, 
-        hasPrivateBathroom: false, 
+        name: 'Master Bedroom', 
+        size: 150, 
+        hasPrivateBathroom: true, 
         hasCloset: true,
         hasBalcony: false,
         hasAirConditioning: true,
-        noiseLevel: 3, 
-        naturalLight: 4,
+        noiseLevel: 2, 
+        naturalLight: 5,
+        customFeatures: [],
+      }, {
+        id: uuidv4(),
+        name: 'Small Bedroom',
+        size: 100,
+        hasPrivateBathroom: false,
+        hasCloset: true,
+        hasBalcony: false,
+        hasAirConditioning: true,
+        noiseLevel: 3,
+        naturalLight: 3,
         customFeatures: [],
       }],
       weights: { size: 40, features: 30, comfort: 30 },
@@ -77,14 +89,12 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
   const formValues = watch();
 
   useEffect(() => {
-    // Decode data from URL
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const data = params.get('data');
       if (data) {
         try {
           const decodedData = JSON.parse(atob(data));
-          // A simple validation to ensure we have something that looks like our data
           if(decodedData.totalRent && decodedData.rooms && decodedData.weights) {
             methods.reset(decodedData);
             toast({ title: "Welcome back!", description: "We've loaded your shared rent data." });
@@ -103,6 +113,15 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
     try {
       const rentResults = calculateRent(data.totalRent, data.rooms, data.weights);
       setResults(rentResults);
+      setAiExplanation(''); // Clear previous AI explanation on new calculation
+      
+      setTimeout(() => {
+        const resultsEl = document.getElementById('results-dashboard');
+        if (resultsEl) {
+          resultsEl.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+
     } catch (error) {
       console.error(error);
       toast({ variant: "destructive", title: "Calculation Error", description: "Something went wrong during calculation." });
@@ -137,16 +156,20 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
       setAiExplanation(aiResult.explanation);
 
       toast({
-        title: "AI Suggestion Applied",
-        description: "The weights have been updated based on the AI's recommendation.",
+        title: "AI Weights Applied!",
+        description: "The weights have been updated. Now, calculate your new split!",
       });
 
     } catch (error) {
       console.error("AI optimization failed:", error);
+      let description = "Could not get suggestions from AI. Please try again later.";
+      if (error instanceof Error && error.message.includes('API key not found')) {
+        description = "Your Gemini API key is missing or invalid. Please check your key and try again.";
+      }
       toast({
         variant: "destructive",
         title: "AI Error",
-        description: "Could not get suggestions from AI. Please try again later.",
+        description,
       });
     } finally {
       setIsAiLoading(false);
@@ -164,16 +187,27 @@ export function RentSplitter({ initialCounters }: RentSplitterProps) {
 
         <RoomForm />
 
+        <div className="flex justify-center">
+            <ArrowDown className="h-8 w-8 text-muted-foreground animate-bounce" />
+        </div>
+
         <WeightPanel onAiOptimize={() => setIsApiDialogOpen(true)} isAiLoading={isAiLoading} aiExplanation={aiExplanation} />
         
-        <div className="text-center">
-          <Button type="submit" size="lg" disabled={isCalculating || isAiLoading}>
+        <div className="text-center sticky bottom-4 z-10">
+          <Button 
+            type="submit" 
+            size="lg" 
+            disabled={isCalculating || isAiLoading} 
+            className="text-lg px-10 py-7 shadow-2xl rounded-full"
+          >
             {isCalculating ? 'Calculating...' : 'Calculate Fair Split'}
           </Button>
         </div>
 
         {results.length > 0 && (
-          <ResultsDashboard results={results} totalRent={formValues.totalRent} formData={formValues} initialCounters={initialCounters} />
+          <div id="results-dashboard" className="scroll-m-20">
+            <ResultsDashboard results={results} totalRent={formValues.totalRent} formData={formValues} initialCounters={initialCounters} />
+          </div>
         )}
       </form>
     </FormProvider>

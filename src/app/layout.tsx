@@ -1,10 +1,82 @@
-import type {Metadata} from 'next';
+import type { Metadata } from 'next';
+import { Inter, Lobster_Two } from 'next/font/google';
 import { Toaster } from "@/components/ui/toaster"
 import './globals.css';
 
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const lobsterTwo = Lobster_Two({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-lobster-two',
+  display: 'swap',
+});
+
+const siteConfig = {
+  name: "Rent Fairness",
+  url: "https://rentfairness.com",
+  description: "A free tool to help roommates divide rent fairly based on room size, features, and comfort level. Stop splitting rent equally, start splitting it fairly.",
+  ogImage: "https://rentfairness.com/og-image.png",
+  links: {
+    creator: "https://aliubaid.com",
+  }
+}
+
 export const metadata: Metadata = {
-  title: 'Rent Fairness: Split rent fairly, not equally.',
-  description: 'A free tool to help roommates divide rent fairly based on room size, features, and comfort level.',
+  title: {
+    default: siteConfig.name,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+  keywords: [
+    "rent splitter",
+    "rent calculator",
+    "fair rent",
+    "roommate rent calculator",
+    "split rent",
+    "rent division",
+    "apartment rent",
+  ],
+  authors: [
+    {
+      name: "Ali Ubaid",
+      url: siteConfig.links.creator,
+    },
+  ],
+  creator: "Ali Ubaid",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: siteConfig.url,
+    title: siteConfig.name,
+    description: siteConfig.description,
+    siteName: siteConfig.name,
+    images: [
+      {
+        url: siteConfig.ogImage,
+        width: 1200,
+        height: 630,
+        alt: siteConfig.name,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.name,
+    description: siteConfig.description,
+    images: [siteConfig.ogImage],
+    creator: "@example",
+  },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: `${siteConfig.url}/site.webmanifest`,
 };
 
 export default function RootLayout({
@@ -13,12 +85,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />
-      </head>
+    <html lang="en" className={`${inter.variable} ${lobsterTwo.variable} dark`} suppressHydrationWarning>
       <body className="font-body antialiased">
         {children}
         <Toaster />
