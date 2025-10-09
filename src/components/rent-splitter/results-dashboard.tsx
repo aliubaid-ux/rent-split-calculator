@@ -55,7 +55,7 @@ export function ResultsDashboard({ results, totalRent, formData, initialCounters
     incrementStat('links');
     incrementStat('helped');
     setCounters(prev => ({...prev, links: prev.links + 1}));
-    toast({ title: "Link Copied!", description: "A shareable link has been copied to your clipboard." });
+    toast({ title: "Link Copied!", description: "A shareable link has been copied to your clipboard. The data is stored in the link and not on our servers." });
   };
 
   const handleFeedback = (type: 'like' | 'dislike') => {
