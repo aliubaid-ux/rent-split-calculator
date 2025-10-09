@@ -28,12 +28,14 @@ export function ApiKeyDialog({ isOpen, onOpenChange, onKeySubmit }: ApiKeyDialog
   const { toast } = useToast();
   
   const getCookie = (name: string): string | undefined => {
+    if (typeof document === 'undefined') return;
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop()?.split(';').shift();
   };
 
   const setCookie = (name: string, value: string, days: number) => {
+    if (typeof document === 'undefined') return;
     let expires = "";
     if (days) {
         const date = new Date();
@@ -46,17 +48,6 @@ export function ApiKeyDialog({ isOpen, onOpenChange, onKeySubmit }: ApiKeyDialog
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-
-  useEffect(() => {
-    if (isMounted && isOpen) {
-      const existingKey = getCookie('gemini_api_key');
-      if (existingKey) {
-          onOpenChange(false);
-          onKeySubmit();
-      }
-    }
-  }, [isOpen, onOpenChange, onKeySubmit, isMounted]);
 
   const handleSubmit = () => {
     if (!apiKey.trim()) {
