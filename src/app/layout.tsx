@@ -17,7 +17,7 @@ const fontPtSans = PT_Sans({
 });
 
 const siteConfig = {
-  name: "Rent Fairness",
+  name: "Rent Fairness - Rent Split calculator",
   url: "https://rentfairness.com",
   description: "A free tool to help roommates divide rent fairly based on room size, features, and comfort level. Stop splitting rent equally, start splitting it fairly.",
   ogImage: "https://rentfairness.com/og-image.png",
